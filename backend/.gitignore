@@ -42,3 +42,12 @@ Desktop.ini
 .env.test.local
 .env.production.local
 /src/generated/prisma
+
+.agents/
+.claude/
+.windsurf/
+
+# Docker local overrides
+docker-compose.override.yaml
+docker-compose.override.yml
+
