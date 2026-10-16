@@ -11,3 +11,41 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id             Int @id @default(autoincrement())
+  email          String @unique
+  username       String
+  password       String
+  profilePicture ProfilePicture?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  session Session[]
+
+}
+
+model ProfilePicture {
+  id        Int @id @default(autoincrement())
+  userId    Int @unique
+  imageUrl  String
+  imageId   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id           Int @id @default(autoincrement())
+  userId       Int
+  refreshToken String @unique
+  expiresAt   DateTime
+
+  reatedAt     DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
