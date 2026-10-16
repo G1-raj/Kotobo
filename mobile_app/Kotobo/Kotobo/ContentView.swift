@@ -4,7 +4,7 @@ import Playgrounds
 struct ContentView: View {
     var body: some View {
         VStack {
-            Text("Hello kotobo")
+            Text("This push is from xcode")
         }
     }
 }
