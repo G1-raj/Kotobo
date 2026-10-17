@@ -1,6 +1,6 @@
 import Router from "express"
 import getMe from "../controllers/profile/profile.controller.js";
-import authMiddleware from "../middlewares/auth.moddleware.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
 import { profileLimiter } from "../middlewares/rateLimiter.js";
 
 const router = Router();
