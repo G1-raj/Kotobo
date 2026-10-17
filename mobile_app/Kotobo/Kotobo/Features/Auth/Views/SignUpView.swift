@@ -15,6 +15,7 @@ struct SignUpView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
+            
             Image("onboarding_background")
                 .resizable()
                 .scaledToFill()
@@ -56,17 +57,8 @@ struct SignUpView: View {
                 )
                 .padding(.bottom, 20)
                 
-                Button {
-                    print("Create account button is pressed")
-                } label: {
-                    Text("Create Account")
-                        .frame(width: 350, height: 55)
-                        .background(.pink)
-                        .foregroundStyle(.white)
-                        .bold()
-                        .clipShape(
-                            RoundedRectangle(cornerRadius: 32)
-                        )
+                CustomButton(buttonTitle: "Create Account") {
+                    print("Signup")
                 }
                 .padding(.bottom, 20)
                 
