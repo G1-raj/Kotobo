@@ -41,20 +41,34 @@ const changePassword = async (req: Request, res: Response) => {
             },
             data: {
                 password: hashedPassword
+            },
+            select: {
+                id: true,
+                email: true,
+                username: true,
+                createdAt: true,
+                updatedAt: true
             }
         });
 
-        const userCredentials = {
-            id: updatedUser.id,
-            email: updatedUser.email,
-            username: updatedUser.username,
-            createdAt: updatedUser.createdAt,
-            updatedAt: updatedUser.updatedAt
-        }
+        //revoking access from all the sessions
+        await prisma.session.deleteMany({
+            where: {
+                userId: updatedUser.id
+            }
+        });
+
+        //clearng refresh token from cookie
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+        });
 
         res.status(200).json({
             success: true,
-            data: userCredentials,
+            data: updatedUser,
             message: "Password changed successfully"
         });
         
