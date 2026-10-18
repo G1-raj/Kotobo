@@ -53,8 +53,8 @@ struct LoginView: View {
                     }
                     .padding(.bottom, 10)
                     
-                    Button {
-                        print("Forgot password")
+                    NavigationLink {
+                        ForgotPasswordView()
                     } label: {
                         Text("Forgot Password?")
                             .foregroundStyle(.black)
