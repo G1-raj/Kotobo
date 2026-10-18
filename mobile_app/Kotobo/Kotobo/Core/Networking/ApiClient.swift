@@ -20,8 +20,18 @@ final class ApiClient {
     }
     
     
-//    private func refreshAccessToken() async throws -> String {
-//        return accessToken
-//    }
+    private func refreshAccessToken() async throws -> String {
+        let response: SuccessResponseModel<RefreshTokenResponseModel> = try await post(
+            SuccessResponseModel<RefreshTokenResponseModel>.self,
+            to: refreshUrl,
+            auth: .none
+        )
+        
+        guard let accessToken = response.data?.accessToken else {
+            throw APIError.invalidResponse
+        }
+        
+        return accessToken
+    }
     
 }
