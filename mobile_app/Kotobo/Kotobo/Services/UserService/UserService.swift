@@ -46,12 +46,18 @@ final class UserService: UserServiceProtocol {
     func logIn(user: LoginRequestModel) async throws -> SuccessResponseModel<LoginResponseModel> {
         var url = baseUrl.appendingPathComponent("auth/login")
         
-        return try await apiClient.post(
+        let response = try await apiClient.post(
             SuccessResponseModel<LoginResponseModel>.self,
             to: url,
             body: user,
             auth: .none
         )
+        
+        if let accessToken = response.data?.accessToken, !accessToken.isEmpty {
+            try await tokenManager.saveAccessToken(accessToken)
+        }
+        
+        return response
     }
     
     //forgot password services
