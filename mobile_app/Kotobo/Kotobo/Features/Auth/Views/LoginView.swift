@@ -67,7 +67,9 @@ struct LoginView: View {
                     .padding(.bottom, 10)
                     
                     NavigationLink {
-                        ForgotPasswordView()
+                        ForgotPasswordView(
+                            service: container.userService
+                        )
                     } label: {
                         Text("Forgot Password?")
                             .foregroundStyle(.black)

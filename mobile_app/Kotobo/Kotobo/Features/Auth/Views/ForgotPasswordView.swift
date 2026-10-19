@@ -9,7 +9,15 @@ import SwiftUI
 
 struct ForgotPasswordView: View {
     
+    @State private var viewModel: UserViewModel
     
+    init(service: UserServiceProtocol) {
+        _viewModel = State(
+            initialValue: UserViewModel(
+                userService: service
+            )
+        )
+    }
     
     @State private var email = ""
     @State private var navigateToVerifyOtp = false
@@ -46,7 +54,9 @@ struct ForgotPasswordView: View {
                     Spacer()
                     
                     CustomButton(buttonTitle: "Send Otp") {
-                        navigateToVerifyOtp = true
+                        Task {
+                            await sendOtp()
+                        }
                     }
                     .padding(.bottom, 80)
                         
@@ -76,8 +86,41 @@ struct ForgotPasswordView: View {
             
         }
     }
+    
+    func sendOtp() async {
+        guard !email.isEmpty else {
+            viewModel.errorMessage = "Email is required"
+            return
+        }
+        
+        let userData = SendOtpRequestModel(
+            email: email
+        )
+        
+        let isSuccess = await viewModel.sendOtp(user: userData)
+        
+        if isSuccess {
+            navigateToVerifyOtp = true
+        }
+    }
 }
 
 #Preview {
-    ForgotPasswordView()
+    
+    let tokenManager = TokenManager()
+    let refreshUrl = AppConfig.baseUrl.appendingPathComponent("auth/refresh")
+    
+    let apiClinet = ApiClient(
+        tokenManager: tokenManager,
+        refreshUrl: refreshUrl
+    )
+    
+    let service = UserService(
+        apiClient: apiClinet,
+        tokenManager: tokenManager
+    )
+
+    ForgotPasswordView(
+        service: service
+    )
 }
