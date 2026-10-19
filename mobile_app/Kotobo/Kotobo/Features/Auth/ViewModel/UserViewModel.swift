@@ -23,7 +23,7 @@ final class UserViewModel {
     }
     
     //Signup view model to connect view and service for signup
-    func signUp(user: SignUpRequestModel) async throws -> Bool {
+    func signUp(user: SignUpRequestModel) async -> Bool {
         
         isLoading = true
         errorMessage = nil
@@ -50,7 +50,7 @@ final class UserViewModel {
     }
     
     //login view model to connect view and service for login
-    func logIn(user: LoginRequestModel) async throws -> Bool {
+    func logIn(user: LoginRequestModel) async -> Bool {
         isLoading = true
         errorMessage = nil
         

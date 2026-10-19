@@ -9,6 +9,18 @@ import SwiftUI
 
 struct SignUpView: View {
     
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var viewModel: UserViewModel
+    
+    init(service: UserServiceProtocol) {
+        _viewModel = State(
+            initialValue: UserViewModel(
+                userService: service
+            )
+        )
+    }
+    
     @State private var email = ""
     @State private var username = ""
     @State private var password = ""
@@ -58,7 +70,9 @@ struct SignUpView: View {
                 .padding(.bottom, 20)
                 
                 CustomButton(buttonTitle: "Create Account") {
-                    print("Signup")
+                    Task {
+                        await signUp()
+                    }
                 }
                 .padding(.bottom, 20)
                 
@@ -84,8 +98,53 @@ struct SignUpView: View {
             )
         }
     }
+    
+    func signUp() async {
+        guard !email.isEmpty else {
+            viewModel.errorMessage = "Email is required"
+            return
+        }
+        
+        guard !username.isEmpty else {
+            viewModel.errorMessage = "Username is required"
+            return
+        }
+        
+        guard !password.isEmpty else {
+            viewModel.errorMessage = "Password is required"
+            return
+        }
+        
+        let userData = SignUpRequestModel(
+            email: email,
+            username: username,
+            password: password
+        )
+        
+        let user = await viewModel.signUp(user: userData)
+        
+        if user {
+            dismiss()
+        }
+    }
 }
 
 #Preview {
-    SignUpView()
+    
+    let tokenManager = TokenManager()
+
+    let apiClient = ApiClient(
+        tokenManager: tokenManager,
+        refreshUrl: AppConfig.baseUrl
+            .appendingPathComponent("auth/refresh")
+    )
+
+    let userService = UserService(
+        apiClient: apiClient,
+        tokenManager: tokenManager
+    )
+    
+    SignUpView(
+        service: userService
+    )
 }
