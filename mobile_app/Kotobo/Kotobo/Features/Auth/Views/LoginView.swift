@@ -9,6 +9,17 @@ import SwiftUI
 
 struct LoginView: View {
     
+    @Environment(AppContainer.self) private var container
+    @State private var viewModel: UserViewModel
+    
+    init(service: UserServiceProtocol) {
+        _viewModel = State(
+            initialValue: UserViewModel(
+                userService: service
+            )
+        )
+    }
+    
     @State private var email = ""
     @State private var password = ""
     
@@ -49,7 +60,9 @@ struct LoginView: View {
                     .padding(.bottom, 20)
                     
                     CustomButton(buttonTitle: "Login") {
-                        print("Login")
+                        Task {
+                            await login()
+                        }
                     }
                     .padding(.bottom, 10)
                     
@@ -71,7 +84,9 @@ struct LoginView: View {
                         .fontWeight(.semibold)
                     
                     NavigationLink {
-                        SignUpView()
+                        SignUpView(
+                            service: container.userService
+                        )
                     } label: {
                         Text("Signup")
                             .foregroundStyle(
@@ -97,8 +112,47 @@ struct LoginView: View {
             )
         }
     }
+    
+    func login() async {
+        guard !email.isEmpty else {
+            viewModel.errorMessage = "Email is required"
+            return
+        }
+        
+        guard !password.isEmpty else {
+            viewModel.errorMessage = "Password is required"
+            return
+        }
+        
+        let userData = LoginRequestModel(
+            email: email,
+            password: password
+        )
+        
+        let isSuccess = await viewModel.logIn(user: userData)
+        
+        if isSuccess {
+            container.loginSuccessful()
+        }
+    }
 }
 
 #Preview {
-    LoginView()
+    
+    let tokenManager = TokenManager()
+    let refreshUrl = AppConfig.baseUrl.appendingPathComponent("auth/refresh")
+    
+    let apiClinet = ApiClient(
+        tokenManager: tokenManager,
+        refreshUrl: refreshUrl
+    )
+    
+    let service = UserService(
+        apiClient: apiClinet,
+        tokenManager: tokenManager
+    )
+    
+    LoginView(
+        service: service
+    )
 }
