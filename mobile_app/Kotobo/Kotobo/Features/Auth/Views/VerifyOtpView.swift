@@ -10,9 +10,21 @@ import Combine
 
 struct VerifyOtpView: View {
     
+    @State private var viewModel: UserViewModel
+    
+    init(service: UserServiceProtocol, email: Binding<String>) {
+        self._email = email
+        _viewModel = State(
+            initialValue: UserViewModel(
+                userService: service
+            )
+        )
+    }
+    
     @State private var navigateToCreatePassword = false
     
     @State private var otp = ""
+    @Binding var email: String
     
     @State private var timeRemaining = 60
     @State private var isTimerRunning = true
@@ -57,7 +69,7 @@ struct VerifyOtpView: View {
                     Text("We've sent a 6-digit code to")
                         .foregroundStyle(.gray)
                     
-                    Text("you@example.com")
+                    Text(email)
                         .foregroundColor(Color.black)
                         .bold()
                         .padding(.bottom, 30)
@@ -126,7 +138,9 @@ struct VerifyOtpView: View {
                     Spacer()
                     
                     CustomButton(buttonTitle: "Verify") {
-                       navigateToCreatePassword = true
+                        Task {
+                            await verifyOtp()
+                        }
                     }
                     .padding(.bottom, 80)
                         
@@ -154,8 +168,46 @@ struct VerifyOtpView: View {
             }
         }
     }
+    
+    
+    func verifyOtp() async {
+        guard !otp.isEmpty else {
+            viewModel.errorMessage = "Otp is required"
+            return
+        }
+        
+        let otpData = VerifyOtpRequestModel(
+            email: email,
+            otp: otp
+        )
+        
+        let isSuccess = await viewModel.verifyOtp(otp: otpData)
+        
+        if isSuccess {
+            navigateToCreatePassword = true
+        }
+    }
 }
 
 #Preview {
-    VerifyOtpView()
+    
+    @Previewable @State var email = "example@ymail.com"
+    
+    let tokenManager = TokenManager()
+    let refreshUrl = AppConfig.baseUrl.appendingPathComponent("auth/refresh")
+    
+    let apiClinet = ApiClient(
+        tokenManager: tokenManager,
+        refreshUrl: refreshUrl
+    )
+    
+    let service = UserService(
+        apiClient: apiClinet,
+        tokenManager: tokenManager
+    )
+    
+    VerifyOtpView(
+        service: service,
+        email: $email
+    )
 }

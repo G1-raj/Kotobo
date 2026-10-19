@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ForgotPasswordView: View {
     
+    @Environment(AppContainer.self) private var container
     @State private var viewModel: UserViewModel
     
     init(service: UserServiceProtocol) {
@@ -81,7 +82,10 @@ struct ForgotPasswordView: View {
                 )
             }
             .navigationDestination(isPresented: $navigateToVerifyOtp) {
-                VerifyOtpView()
+                VerifyOtpView(
+                    service: container.userService,
+                    email: $email,
+                )
             }
             
         }
