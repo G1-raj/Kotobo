@@ -10,6 +10,7 @@ import Combine
 
 struct VerifyOtpView: View {
     
+    @Environment(AppContainer.self) private var container
     @State private var viewModel: UserViewModel
     
     init(service: UserServiceProtocol, email: Binding<String>) {
@@ -164,7 +165,10 @@ struct VerifyOtpView: View {
                 )
             }
             .navigationDestination(isPresented: $navigateToCreatePassword) {
-                CreateNewPasswordView()
+                CreateNewPasswordView(
+                    email: $email,
+                    service: container.userService
+                )
             }
         }
     }
